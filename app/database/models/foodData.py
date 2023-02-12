@@ -33,4 +33,4 @@ class FoodData(db.Model):
             'fat': self.fat,
             'carbohydrate': self.carbohydrate
         }
-        return json.dumps(obj, ensure_ascii=False)
+        return obj

@@ -1,16 +1,7 @@
-import asyncio
-
 from flask import current_app as app, Response, request
 
 from .database.models.foodData import FoodData
 from . import db
-
-
-@app.route('/', methods=['GET'])
-def hello_world():
-    return {
-        'hello': 'world'
-    }
 
 
 @app.route('/ping', methods=['GET'])
@@ -20,25 +11,30 @@ def ping():
 
 @app.route('/api/list', methods=['GET'])
 def get_all():
-    return list(map(lambda x: x.toJson(), FoodData.query.all()))
+    args = request.args
+    page = int(args.get('page'))
+    size = int(args.get('size'))
+    result = FoodData.query.paginate(page=page, per_page=size)
+    return {
+        'items': list(map(lambda x: x.toJson(), result.items)),
+        'cur_page': result.page,
+        'total_pages': result.pages
+    }
 
 
 @app.get("/api/search")
 def search():
     args = request.args
     foodName = args.get('text').lower()
+    page = int(args.get('page'))
+    size = int(args.get('size'))
     search_request = "%{}%".format(foodName)
-    result = FoodData.query.filter(FoodData.food.ilike(search_request)).all()
-    return list(map(lambda x: x.toJson(), result))
-
-
-@app.post("/api/seed")
-def seed():
-    seed_db()
-    return Response(
-        mimetype='application/json',
-        status=200
-    )
+    result = FoodData.query.filter(FoodData.food.ilike(search_request)).paginate(page=page, per_page=size)
+    return {
+        'items': list(map(lambda x: x.toJson(), result.items)),
+        'cur_page': result.page,
+        'total_pages': result.pages
+    }
 
 
 def seed_db():

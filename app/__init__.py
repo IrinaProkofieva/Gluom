@@ -4,9 +4,6 @@ from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
 
 
-# Globally accessible libraries
-from app.database.seeder.FoodDataSeeder import FoodDataSeeder
-
 db = SQLAlchemy()
 r = FlaskRedis()
 
@@ -26,8 +23,5 @@ def create_app():
 
         # Migration
         Migrate(app, db)
-        # db.create_all()
-
-        # routes.seed_db()
 
     return app
